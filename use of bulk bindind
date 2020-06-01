@@ -1,0 +1,57 @@
+-------------------------------------------------------------------bulk bining-----------------------------------------
+Select * From Employees 
+Where Employee_Id In (100,101,102);
+
+Create Or Replace Procedure Update_Sal_Withbulk
+(P_Amount Number)
+Is
+Type Emp_Table_Type Is Table Of Number Index By Binary_Integer ;
+Emp_Table Emp_Table_Type;
+Begin
+Emp_Table(1):=100;
+Emp_Table(2):=101;
+Emp_Table(3):=102;
+ Forall I In Emp_Table.First..Emp_Table.Last
+ Update Employees 
+ Set Salary=Salary+P_Amount
+ Where  Employee_Id=Emp_Table(I);
+ Commit;
+end;
+
+execute Update_Sal_Withbulk (10);
+
+-----------------------------------------------------------------with bulk and limit------------------------------------------------
+
+declare
+type emp_t is table of employees%rowtype ;
+emp_table emp_t ; 
+cursor emp_c is select * from employees ;
+begin
+open emp_c ;
+fetch emp_c bulk collect into emp_table limit 5 ;
+
+for i in emp_table.first..emp_table.last
+loop
+dbms_output.put_line(emp_table(i).first_name);
+end loop;
+end ;
+
+------------------------------------------------------------------using returning in bulk collect(nested table)-------------------------------------------------------
+Declare
+Type Emp_T Is Table Of Ename_Test%Rowtype ;
+Emp_Table Emp_T:=Emp_T();
+Emp_New_Sal Emp_T:=Emp_T();
+Begin
+Select * Bulk Collect Into Emp_Table From Ename_Test;
+
+Forall I In Emp_Table.First..Emp_Table.Last
+Update Ename_Test
+Set Salary = Salary/2 
+Where Employee_Id=Emp_Table(I).Employee_Id
+Returning Employee_Id,Salary Bulk Collect Into Emp_New_Sal;
+
+For I In Emp_New_Sal.First..Emp_New_Sal.Last
+Loop
+Dbms_Output.Put_Line(Emp_New_Sal(I).Employee_Id||' '||Emp_New_Sal(I).Salary);
+End Loop;
+end;

@@ -1,0 +1,16 @@
+create or replace function get_sal
+(p_emp_id number)
+return number
+is
+v_sal number ;
+begin
+select salary into v_sal
+from employees
+where employee_id = p_emp_id ;
+
+return v_sal ;
+end ;
+
+Begin 
+Dbms_Output.Put_Line (Get_Sal(100));
+End;

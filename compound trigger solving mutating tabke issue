@@ -1,0 +1,23 @@
+Create Or Replace Trigger It_Prog_Range 
+for
+Insert Or Update 
+On Employees 
+When (New.Job_Id='IT_PROG')
+compound trigger 
+V_Min_It_Prog Number ;
+V_Max_It_Prog Number ;
+  Before Statement Is 
+  Begin
+ Select Min(Salary),Max(Salary)
+ Into V_Min_It_Prog,V_Max_It_Prog
+ From Employees 
+ Where Job_Id= 'IT_PROG';
+ End Before Statement ;
+ 
+ Before Each Row Is
+ begin 
+If :New.Salary Not Between V_Min_It_Prog And V_Max_It_Prog Then
+Raise_Application_Error(-20300,'invalid range');
+End If ;
+end before each row ;
+End ;

@@ -1,0 +1,84 @@
+Create Table Student 
+(Student_Id Number,
+First_Name Varchar2(100),
+Birthday Date,
+Constraint Student_Pk Primary Key (Student_Id)
+)
+;
+
+create sequence student_seq ;
+
+
+Create Or Replace  Package General_Student
+Is
+    Procedure Insert_Student
+    (p_first_name varchar2 , p_birthday date);
+    
+    Procedure Delete_Student
+    (P_Student_Id Number);
+    
+    Function Get_Name
+    (P_Student_Id Number)
+    Return Varchar2 ;
+    
+end;
+
+Create Or Replace Package Body General_Student
+Is
+  Procedure Insert_Student
+  (P_First_Name Varchar2,P_Birthday Date)
+  Is 
+  Begin
+  Insert Into Student
+  Values(Student_Seq.Nextval , P_First_Name,P_Birthday);
+  commit ;
+  
+  Exception
+  When Others Then
+  Dbms_Output.Put_Line(Sqlcode);
+  Dbms_Output.Put_Line(Sqlerrm);
+  end;
+  
+  Procedure Delete_Student
+  (P_Student_Id Number)
+  Is
+  Begin
+   Delete From Student 
+   Where Student_Id = P_Student_Id;
+   commit ;
+  
+    
+   Exception
+  When Others Then
+  Dbms_Output.Put_Line(Sqlcode);
+  Dbms_Output.Put_Line(Sqlerrm);
+  end;
+  
+  Function Get_Name
+  (P_Student_Id Number)
+  Return Varchar2
+  Is
+  V_Name Student.First_Name%Type;
+  Begin
+   Select First_Name Into V_Name
+   From Student
+   Where Student_Id=P_Student_Id;
+   
+   return v_name;
+   
+   Exception
+   When Others Then
+   Return Null ;
+   End;
+end;
+
+
+Execute General_Student.Insert_Student('priti Mishra','10-Jun-1991');
+Execute General_Student.Insert_Student('Vishal Mishra','25-May-1988');
+execute General_Student.insert_student('Vivaan Mishra','14-Jan-2020');
+
+select * from Student;
+
+execute general_student.delete_student(1);
+
+select general_student.get_name (2) from dual ;

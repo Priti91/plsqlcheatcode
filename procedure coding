@@ -1,0 +1,54 @@
+------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE test_plsql_records 
+(rec in departments%rowtype)
+is
+begin
+insert into departments values rec ;
+end;
+
+declare
+v departments%rowtype ;
+begin
+v.department_id :=3;
+v.department_name :='v_dept';  
+
+test_plsql_records (v);
+end ;
+--------------------------------------------------------------------------------------------------------
+create or replace procedure query_emp
+(p_emp_id employees.employee_id%type,
+p_f_name out employees.first_name%type,
+p_sal out employees.salary%type)
+is
+begin
+select first_name,salary 
+into p_f_name,p_sal
+from employees
+where employee_id = p_emp_id ;
+
+exception   
+when others then
+dbms_output.put_line(sqlcode);
+dbms_output.put_line(sqlerrm);
+
+end;
+
+-----good method to get output-------------------------
+declare
+v_first_name employees.first_name%type;
+v_sal employees.salary%type;
+begin
+query_emp(105,v_first_name,v_sal);
+dbms_output.put_line(v_first_name);
+dbms_output.put_line(v_sal);
+end;
+
+--declearing 2 bind variable /not good method----
+
+variable b_first_name varchar2(100)
+variable b_sal number
+
+execute query_emp (105,:b_first_name,:b_sal)
+
+print b_first_name b_sal
+-----------------------------------------------------------------------------------------------------------
